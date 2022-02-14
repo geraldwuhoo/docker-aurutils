@@ -13,7 +13,7 @@ In all of the above cases, creating a chroot with `aur sync -c` fails.
 It's recommended to create an alias for easier usage:
 
 ```sh
-alias daur = docker run --rm -it -v ${REPO_PATH}:/repo registry.gitlab.com/geraldwuhoo/aurutils:latest aur
+alias daur="docker run --rm -it -v ${REPO_PATH}:/repo registry.gitlab.com/geraldwuhoo/aurutils:latest aur"
 ```
 
 where `${REPO_PATH}` is the path on the host where the repository lives.
