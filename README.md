@@ -1,5 +1,7 @@
 # docker-aurutils
 
+[![pipeline status](https://gitlab.com/geraldwuhoo/docker-aurutils/badges/master/pipeline.svg)](https://gitlab.com/geraldwuhoo/docker-aurutils/-/commits/master)
+
 `aurutils` packaged into a Docker container. Useful in any environment in which it's inpractical to spin up a chroot on the host.
 
 Potential uses:

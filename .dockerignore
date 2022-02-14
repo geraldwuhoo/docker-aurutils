@@ -1,4 +1,6 @@
+.gitlab-ci.yml
 .gitignore
 .dockerignore
 Dockerfile
 repo
+README.md
