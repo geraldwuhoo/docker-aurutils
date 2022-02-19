@@ -1,6 +1,6 @@
 FROM docker.io/library/archlinux:base-devel
 
-LABEL ver="5.2-1"
+LABEL ver="6.2-1"
 
 RUN pacman --noconfirm -Syu && \
     pacman --noconfirm -S git jq pacutils expect vifm && \
@@ -25,4 +25,4 @@ RUN git clone https://aur.archlinux.org/aurutils.git && \
     rm -rf aurutils && \
     sudo pacman --noconfirm -Scc
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT ["/entrypoint.sh"]
