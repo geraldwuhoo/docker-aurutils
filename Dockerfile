@@ -3,7 +3,7 @@ FROM docker.io/library/archlinux:base-devel
 LABEL ver="9.6-1"
 
 RUN pacman --noconfirm -Syu && \
-    pacman --noconfirm -S git jq pacutils expect vifm && \
+    pacman --noconfirm -S git jq pacutils expect vim vifm && \
     pacman --noconfirm -Scc
 
 COPY entrypoint.sh /entrypoint.sh
