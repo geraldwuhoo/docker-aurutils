@@ -1,17 +1,16 @@
-image: docker.io/docker:20
-
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
-
-services:
-  - docker:20-dind
-
+stages:
+  - build
 build:
   stage: build
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - export FULL_IMAGE_NAME="$([ "$CI_COMMIT_BRANCH" = "master" ] && echo "$CI_REGISTRY_IMAGE" || echo "$CI_REGISTRY_IMAGE/$CI_COMMIT_BRANCH")"
+  image:
+    name: gcr.io/kaniko-project/executor:v1.8.1-debug
+    entrypoint: [""]
   script:
-    - docker build -t "$FULL_IMAGE_NAME:latest" -t "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA" .
-    - docker push "$FULL_IMAGE_NAME:latest"
-    - docker push "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      --destination "${CI_REGISTRY_IMAGE}:latest"
