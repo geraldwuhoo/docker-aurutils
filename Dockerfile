@@ -1,4 +1,4 @@
-FROM docker.io/library/archlinux:base-devel-20220522.0.57327
+FROM docker.io/library/archlinux:base-devel
 
 LABEL ver="9.6-3"
 
