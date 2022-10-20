@@ -1,16 +1,45 @@
 stages:
   - build
+  - push
+
+variables:
+  DOCKERIO_MIRROR: hub.wuhoo.xyz
+
 build:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:v1.9.1-debug
     entrypoint: [""]
-  script:
+  before_script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  script:
     - >-
       /kaniko/executor
+      --registry-mirror "${DOCKERIO_MIRROR}"
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
-      --destination "${CI_REGISTRY_IMAGE}:latest"
+      --destination=image
+      --no-push
+      --tarPath image.tar
+  artifacts:
+    untracked: false
+    expire_in: 7 days
+    paths:
+      - image.tar
+    when: on_success
+
+push:
+  stage: push
+  image:
+    name: gcr.io/go-containerregistry/crane/debug:v0.12.0
+    entrypoint: [""]
+  script:
+    - crane auth login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+    - crane push image.tar ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+    - crane push image.tar ${CI_REGISTRY_IMAGE}:latest
+  needs:
+    - build
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
