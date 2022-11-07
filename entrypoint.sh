@@ -6,4 +6,5 @@ if ! (aur repo > /dev/null 2>&1); then
 fi
 
 sudo pacman --noconfirm -Syu
+repoctl conf new /repo/custom.db.tar.gz
 exec "$@"
