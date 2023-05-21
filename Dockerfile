@@ -1,6 +1,6 @@
 FROM docker.io/library/archlinux:base-devel
 
-LABEL ver="14"
+LABEL ver="14.1"
 
 RUN pacman --noconfirm -Syu && \
     pacman --noconfirm -S git jq pacutils expect vim vifm && \
