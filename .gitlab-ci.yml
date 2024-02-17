@@ -8,23 +8,28 @@ variables:
 build:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.20.0-debug
-    entrypoint: [""]
+    name: quay.io/buildah/stable:v1.34.0
+  variables:
+    STORAGE_DRIVER: vfs
+    BUILDAH_FORMAT: docker
+    BUILDAH_ISOLATION: chroot
+    CGO_ENABLED: 0
   before_script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - echo "${CI_REGISTRY_PASSWORD}" | buildah login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
   script:
     - >-
-      /kaniko/executor
-      --registry-mirror "${DOCKERIO_MIRROR}"
-      --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination=image
-      --no-push
-      --tarPath image.tar
+      buildah build
+      --layers
+      --cache-to "${CI_REGISTRY_IMAGE}/build-cache"
+      --cache-from "${CI_REGISTRY_IMAGE}/build-cache"
+      --cache-ttl 168h0m0s
+      --tag aurutils
+      --file Dockerfile
+      .
+    - buildah push localhost/aurutils docker-archive:image.tar
   artifacts:
     untracked: false
-    expire_in: 7 days
+    expire_in: 1 day
     paths:
       - image.tar
     when: on_success
@@ -42,4 +47,3 @@ push:
     - build
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-
